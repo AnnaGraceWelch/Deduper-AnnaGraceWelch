@@ -1,0 +1,127 @@
+Deduper Part 1
+Anna Grace Welch
+
+Part 1:
+==========================================================================================================================
+Define the problem:
+
+The goal for this script is to successfully create a Reference Based PCR Duplicate Removal tool. This tool should
+take a SAM file of uniquely mapped reads and a text file of known Unique Molecular Indexes (UMIs) as input and 
+remove all PCR duplicates. 
+
+We are designing this for single-end reads with a list of 96 known UMIs. 
+
+A PCR duplicate is a duplicate if it has the same chromosome, starting position (accounting for soft clipping), strandedness, and UMI as
+another record. 
+
+It needs to check for PCR duplicates based on:
+
+chromosome
+starting position
+strand
+
+It needs to account for soft clipping by identifying sequences that have been soft clipped and adjusting the start position accordingly.
+It will need to look at the strand for this, as soft clipping can occur on 5' or 3' end. We only need to adjust if it's on the 5' end. 
+Soft clipping is in CIGAR string. 4S for example would mean first four bases were soft-clipped. 
+
+It will also need to check if the UMI is on the list of known UMIs.
+
+Input: SAM file sorted by RNAME and POS
+Output: sorted SAM file with PCR duplicates removed
+
+Pseudocode:
+======================================================================================================================
+Before running script, sort SAM file by chromosome (RNAME, column 3) and position (POS, column 4).
+
+Functions: 
+
+def get_args():
+    Get argument for sorted input sam file
+    Get argument for output sam file
+    Get argument for file containing known UMIs
+    Create argument for --help, which will print a help message for the user to use and run the script. 
+    return argument parser
+Input:
+Output: 
+def known_umis(fh: file) -> list:
+    '''Takes a file handle as input. Opens the file, appends each known UMI in the file to a list. Returns list of UMIs.'''
+    known = [empty list]
+    for loop:
+        append each line to list
+    return list
+Input: test_umi.txt (in unit_test folder)
+Output: AACGCCAT, AAGGTACG, AATTCCGG, ACACAGAG, ACACTCAG, ACACTGTG, ACAGGACA, ACCTGTAG
+
+def parse_bitwise(flag: int) -> string:
+    '''Takes a bitwise flag integer value as input. Checks whether sequence is reverse complement or not.
+        If yes, returns the string 'minus'. If no, returns the string 'plus'.
+    Look at bit 16 of bitwise flag
+        if it is reverse complement, 
+            return 'minus'
+        else:
+            return 'plus'
+Input: 0
+Output: 'plus'
+Input: 16
+Output: 'minus'
+
+def adjust_pos(CIGAR: str, pos: int, strandedness: str) -> int:
+    Look at CIGAR string
+    If there is an 'S":
+        if pos is minus and 'S' is at end:
+            pos = soft-clipped nuclotides + length of sequence (maybe?)
+        elif pos is 'plus' and 'S' is at beginning: 
+            pos = pos - soft-clipped nucloetides
+    return pos
+
+Input: 12S24M, 100, plus
+Output: 88
+Input: 24M12S, 100, minus
+Output: 136 (not sure)
+
+Argparse for sorted SAM input file, output file to write to, and file with list of known UMIs.
+Also make sure argparse has a help function. 
+    
+Call known_UMIs function and store list returned into a variable. 
+
+Initialize a dictionary with UMIs as keys, and tuples containing position and strandedness as values.
+
+Initialize a list to hold records with current chromosome that we are on. 
+
+Open SAM file, open output file
+
+For each line in file: 
+    If line starts with @:
+        write to output file
+    otherwise: 
+        Split line into different fields
+        Look at RNAME (column 3) and store chromosome as a variable
+        If we are still at same chromosome:
+            Look at QNAME and store UMI in a variable
+            If UMI is in list of known UMIs, 
+                Initialize list to hold records with current chromosome minus duplicates
+                If UMI is in dictionary:
+                    Parse bitwise flag using parse_bitwise function and store strandedness as a variable
+                    Look at POS (column 4) and store it as a variable
+                    Look at CIGAR string and store it as a variable
+                    If CIGAR string indicates soft clipping at beginning:
+                        Call adjust_pos function to adjust position
+                        if strandedness and position match item in list under the key for this UMI:
+                            move on
+                    else (no soft clipping): 
+                        If strandedness and position match item in list under the key for this UMI (since we empty dictionary after each chromosome we don't have to check if chromosome is the same):
+                            move on
+                else (UMI is not in dictionary):
+                    add UMI to dictionary with position and strandedness as values
+            else (UMI is not in list of known UMIs):
+                move on
+        else (we have moved to next chromosome):
+            write records from list of current chromomosome to output file
+            empty dictionary as we are now at next chromosome (we should not see this chromosome again since file is sorted)
+
+
+        
+
+
+
+
