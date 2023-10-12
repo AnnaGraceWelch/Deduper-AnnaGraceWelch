@@ -34,15 +34,6 @@ Pseudocode:
 Before running script, sort SAM file by chromosome (RNAME, column 3) and position (POS, column 4).
 
 Functions: 
-
-def get_args():
-    Get argument for sorted input sam file
-    Get argument for output sam file
-    Get argument for file containing known UMIs
-    Create argument for --help, which will print a help message for the user to use and run the script. 
-    return argument parser
-Input:
-Output: 
 def known_umis(fh: file) -> list:
     '''Takes a file handle as input. Opens the file, appends each known UMI in the file to a list. Returns list of UMIs.'''
     known = [empty list]
@@ -66,6 +57,8 @@ Input: 16
 Output: 'minus'
 
 def adjust_pos(CIGAR: str, pos: int, strandedness: str) -> int:
+    '''Takes a CIGAR string, position, and strandedness string as input. Looks at CIGAR string, 
+    and if there is an S, adjusts position value. Returns adjusted position.'''
     Look at CIGAR string
     If there is an 'S":
         if pos is minus and 'S' is at end:
