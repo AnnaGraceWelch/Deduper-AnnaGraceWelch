@@ -55,6 +55,7 @@ def adjust_pos(cigar: str, pos: int, strand: str):
 
 args = get_args()
 
+
 unknown_umis = 0
 duplicates = 0
 known = known_umis(args.umi_file)
@@ -62,6 +63,7 @@ records = 0
 
 current_chrom = None
 seen = {}
+
 
 with open(args.filename, 'r') as input, open(args.output, 'w') as output, open(args.dup_file, 'w') as dupfile:
     for line in input:
@@ -94,6 +96,7 @@ with open(args.filename, 'r') as input, open(args.output, 'w') as output, open(a
                 records += 1
 
 with open(args.summary, 'w') as summary:
+    summary.write(f'Total Records: {records}')
     summary.write(f'Number of duplicates removed: {duplicates}\n')
     summary.write(f'Percent of records that were duplicates: {(duplicates / records) * 100}%\n')
     summary.write(f'Number of unknown UMIs: {unknown_umis}\n')
