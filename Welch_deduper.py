@@ -10,8 +10,6 @@ def get_args():
     parser.add_argument('-d', '--dup_file', help='output file to write duplicate records to')
     parser.add_argument('-s', '--summary', help='output file to write summary of program results to')
     parser.add_argument('-u', '--umi_file', help='file containing list of known UMIs')
-    ### Add help message
-    #parser.add_argument('-h', '--help', action='help')
     return parser.parse_args()
 
 def known_umis(fh) -> dict:
