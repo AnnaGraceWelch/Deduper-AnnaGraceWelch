@@ -2,6 +2,7 @@
 
 import argparse
 import re
+from IPython import embed
 
 def get_args():
     parser = argparse.ArgumentParser(description='program to remove PCR duplicates from a SAM file')
@@ -14,11 +15,11 @@ def get_args():
 
 def known_umis(fh) -> dict:
     '''Takes a file handle as input. Opens the file, appends each known UMI in the file to a dictionary. Returns set of UMIs.'''
-    known = dict()
+    known = set()
     with open(fh, 'r') as input:
         for line in input:
             line = line.strip()
-            known[line] = 0
+            known.add(line)
     return known
 
 def parse_bitwise(flag: int) -> str:
@@ -30,27 +31,25 @@ def parse_bitwise(flag: int) -> str:
         strand = 'plus'
     return strand
 
+
 def adjust_pos(cigar: str, pos: int, strand: str):
     '''This function takes a CIGAR string, position, and strandedness as input. It adjusts the 5' start position based on
    soft-clipping and strandedness. Returns the adjusted position.'''
     #find soft-clipping
-    intlistM = []
     if strand == 'minus':
         m = re.findall(r'(\d+)[M|D|N]', cigar)
-        m = [int(x) for x in m]
-        intlistM.extend(m)
-        pos = pos + sum(intlistM)
+        for match in m:
+            pos = pos + int(match)
         if 'S' in cigar:
             if cigar.endswith('S'):
-                #rvscigar = cigar [::-1]
-                s = re.search(r'(?s:.*)(\d+)S', cigar)
-                #s = re.search(r'S(\d+)', rvscigar)
-                clipped = s.group(1)
+                s = re.findall(r'(\d+)S', cigar)
+                clipped = s[-1]
+                #clipped = s.group(1)
                 pos = pos + int(clipped)
     else:
         if 'S' in cigar:
             s = re.search(r'(\d+)S', cigar)
-            clipped = s.group(1)
+            clipped = s[1]
             pos = pos - int(clipped)
     return pos
 
