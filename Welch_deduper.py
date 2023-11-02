@@ -62,7 +62,6 @@ known = known_umis(args.umi_file)
 records = 0
 
 current_chrom = None
-chroms = set()
 seen = {}
 
 with open(args.filename, 'r') as input, open(args.output, 'w') as output, open(args.dup_file, 'w') as dupfile:
