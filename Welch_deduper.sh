@@ -9,9 +9,8 @@
 
 conda activate base
 
-sam_file='/projects/bgmp/shared/deduper/C1_SE_uniqAlign.sam'
-
 sorted_sam='C1_SE_uniqAlign.sorted.sam'
 output='output.sam'
+
 /usr/bin/time -v \
 ./Welch_deduper.py -f $sorted_sam -o $output -u STL96.txt
